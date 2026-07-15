@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Free Strategy Demo — Social Media by [Your Name]</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0a0a0f;
+    --surface: #111118;
+    --surface2: #18181f;
+    --border: rgba(255,255,255,0.07);
+    --accent: #c8f135;
+    --accent2: #7b61ff;
+    --text: #f0f0f5;
+    --muted: #6b6b7e;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 300;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+    background-size: 60px 60px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  body::after {
+    content: '';
+    position: fixed;
+    top: -20vh;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80vw;
+    height: 60vh;
+    background: radial-gradient(ellipse, rgba(123,97,255,0.12) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .wrapper {
+    position: relative;
+    z-index: 1;
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 80px 24px 120px;
+  }
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(200,241,53,0.1);
+    border: 1px solid rgba(200,241,53,0.25);
+    border-radius: 100px;
+    padding: 6px 14px;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 28px;
+    opacity: 0;
+    animation: fadeUp 0.6s 0.1s ease forwards;
+  }
+
+  .badge-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(1.4); }
+  }
+
+  h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(38px, 7vw, 72px);
+    font-weight: 900;
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    margin-bottom: 20px;
+    opacity: 0;
+    animation: fadeUp 0.6s 0.2s ease forwards;
+  }
+
+  h1 em { font-style: italic; color: var(--accent); }
+
+  .subtitle {
+    font-size: 17px;
+    color: var(--muted);
+    max-width: 520px;
+    line-height: 1.7;
+    margin-bottom: 56px;
+    opacity: 0;
+    animation: fadeUp 0.6s 0.3s ease forwards;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .form-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 48px;
+    position: relative;
+    overflow: hidden;
+    opacity: 0;
+    animation: fadeUp 0.7s 0.4s ease forwards;
+  }
+
+  .form-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(200,241,53,0.4), transparent);
+  }
+
+  .form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+
+  .form-group { display: flex; flex-direction: column; gap: 8px; }
+  .form-group.full { grid-column: 1 / -1; }
+
+  label {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  input, select, textarea {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 13px 16px;
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 400;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    width: 100%;
+    appearance: none;
+  }
+
+  input::placeholder, textarea::placeholder { color: var(--muted); }
+
+  input:focus, select:focus, textarea:focus {
+    border-color: rgba(200,241,53,0.4);
+    box-shadow: 0 0 0 3px rgba(200,241,53,0.07);
+  }
+
+  textarea { resize: none; height: 90px; line-height: 1.6; }
+
+  select {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236b6b7e' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+    padding-right: 36px;
+    cursor: pointer;
+  }
+
+  select option { background: #18181f; }
+
+  .chip-group { display: flex; flex-wrap: wrap; gap: 8px; }
+
+  .chip {
+    padding: 7px 14px;
+    border-radius: 100px;
+    border: 1px solid var(--border);
+    background: var(--surface2);
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--muted);
+    cursor: pointer;
+    transition: all 0.18s;
+    user-select: none;
+  }
+
+  .chip:hover { border-color: rgba(200,241,53,0.3); color: var(--text); }
+
+  .chip.active {
+    background: rgba(200,241,53,0.12);
+    border-color: rgba(200,241,53,0.5);
+    color: var(--accent);
+  }
+
+  .btn-generate {
+    margin-top: 32px;
+    width: 100%;
+    padding: 17px 32px;
+    background: var(--accent);
+    color: #0a0a0f;
+    border: none;
+    border-radius: 12px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    transition: transform 0.15s, box-shadow 0.15s;
+  }
+
+  .btn-generate:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 40px rgba(200,241,53,0.3);
+  }
+
+  .btn-generate:active { transform: translateY(0); }
+
+  .btn-generate:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+  }
+
+  .spinner {
+    width: 18px; height: 18px;
+    border: 2px solid rgba(0,0,0,0.2);
+    border-top-color: #0a0a0f;
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    display: none;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .btn-generate.loading .spinner { display: block; }
+  .btn-generate.loading .btn-text { opacity: 0.6; }
+
+  #result-section {
+    display: none;
+    margin-top: 40px;
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 0.5s, transform 0.5s;
+  }
+
+  #result-section.visible {
+    display: block;
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .result-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .result-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px;
+    font-weight: 700;
+  }
+
+  .result-title span { color: var(--accent); }
+
+  .result-meta {
+    font-size: 11px;
+    font-family: 'DM Mono', monospace;
+    color: var(--muted);
+    background: var(--surface2);
+    padding: 5px 12px;
+    border-radius: 100px;
+    border: 1px solid var(--border);
+  }
+
+  .strategy-card {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 28px 32px;
+    line-height: 1.75;
+    font-size: 14.5px;
+    color: #d4d4e0;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .strategy-card::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 3px;
+    background: linear-gradient(180deg, var(--accent), var(--accent2));
+    border-radius: 3px 0 0 3px;
+  }
+
+  .strategy-card h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--text);
+    margin: 22px 0 8px;
+  }
+
+  .strategy-card h2:first-child { margin-top: 0; }
+
+  .strategy-card h3 {
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin: 18px 0 6px;
+    font-family: 'DM Mono', monospace;
+  }
+
+  .strategy-card p { margin-bottom: 10px; }
+
+  .strategy-card ul {
+    list-style: none;
+    padding: 0;
+    margin-bottom: 10px;
+  }
+
+  .strategy-card ul li {
+    padding: 4px 0 4px 20px;
+    position: relative;
+    color: #c4c4d0;
+  }
+
+  .strategy-card ul li::before {
+    content: '→';
+    position: absolute;
+    left: 0;
+    color: var(--accent);
+    font-size: 12px;
+  }
+
+  .strategy-card strong { color: var(--text); font-weight: 500; }
+
+  .bottom-cta {
+    margin-top: 32px;
+    padding: 32px 36px;
+    background: linear-gradient(135deg, rgba(123,97,255,0.12), rgba(200,241,53,0.06));
+    border: 1px solid rgba(123,97,255,0.2);
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+
+  .cta-text h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 19px;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+
+  .cta-text p { font-size: 13px; color: var(--muted); }
+
+  /* 👇 Replace href with your actual contact link */
+  .btn-cta {
+    padding: 13px 28px;
+    background: transparent;
+    border: 1px solid rgba(200,241,53,0.4);
+    border-radius: 10px;
+    color: var(--accent);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.18s;
+    text-decoration: none;
+    display: inline-block;
+  }
+
+  .btn-cta:hover {
+    background: rgba(200,241,53,0.08);
+    border-color: var(--accent);
+    transform: translateY(-1px);
+  }
+
+  .error-msg {
+    background: rgba(255, 80, 80, 0.08);
+    border: 1px solid rgba(255,80,80,0.2);
+    border-radius: 10px;
+    padding: 14px 18px;
+    font-size: 13px;
+    color: #ff8080;
+    margin-top: 16px;
+    display: none;
+  }
+
+  @media (max-width: 600px) {
+    .form-card { padding: 28px 20px; }
+    .form-grid { grid-template-columns: 1fr; }
+    .form-group.full { grid-column: 1; }
+    .bottom-cta { flex-direction: column; }
+  }
+</style>
+</head>
+<body>
+<div class="wrapper">
+
+  <div class="badge"><span class="badge-dot"></span> Live Demo — Try It Free</div>
+
+  <h1>See your strategy<br><em>before</em> you commit.</h1>
+  <p class="subtitle">Drop in your business details and get an instant, AI-powered social media blueprint — crafted the same way I work with every client.</p>
+
+  <div class="form-card">
+    <div class="form-grid">
+
+      <div class="form-group">
+        <label>Business Name</label>
+        <input type="text" id="bizName" placeholder="e.g. Bloom Café" />
+      </div>
+
+      <div class="form-group">
+        <label>Industry</label>
+        <select id="industry">
+          <option value="">Select industry…</option>
+          <option>Food & Beverage</option>
+          <option>Fashion & Apparel</option>
+          <option>Beauty & Wellness</option>
+          <option>Fitness & Sports</option>
+          <option>Real Estate</option>
+          <option>Technology / SaaS</option>
+          <option>Education & Coaching</option>
+          <option>Health & Medical</option>
+          <option>E-commerce / Retail</option>
+          <option>Travel & Hospitality</option>
+          <option>Finance & Consulting</option>
+          <option>Creative / Agency</option>
+          <option>Other</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Target Audience</label>
+        <input type="text" id="audience" placeholder="e.g. Young professionals 25–35" />
+      </div>
+
+      <div class="form-group">
+        <label>Primary Goal</label>
+        <select id="goal">
+          <option value="">Select goal…</option>
+          <option>Grow brand awareness</option>
+          <option>Generate leads & sales</option>
+          <option>Build community & engagement</option>
+          <option>Drive traffic to website</option>
+          <option>Launch a new product</option>
+          <option>Establish thought leadership</option>
+          <option>Increase local foot traffic</option>
+        </select>
+      </div>
+
+      <div class="form-group full">
+        <label>Platforms to Focus On</label>
+        <div class="chip-group" id="platforms">
+          <div class="chip" data-val="Instagram">Instagram</div>
+          <div class="chip" data-val="TikTok">TikTok</div>
+          <div class="chip" data-val="Facebook">Facebook</div>
+          <div class="chip" data-val="LinkedIn">LinkedIn</div>
+          <div class="chip" data-val="X / Twitter">X / Twitter</div>
+          <div class="chip" data-val="YouTube">YouTube</div>
+          <div class="chip" data-val="Pinterest">Pinterest</div>
+          <div class="chip" data-val="Threads">Threads</div>
+        </div>
+      </div>
+
+      <div class="form-group full">
+        <label>Anything else we should know? <span style="color:var(--muted);font-weight:300;text-transform:none;letter-spacing:0">(optional)</span></label>
+        <textarea id="extra" placeholder="e.g. We're launching a new product next month, our tone is fun and casual…"></textarea>
+      </div>
+
+    </div>
+
+    <button class="btn-generate" id="generateBtn" onclick="generateStrategy()">
+      <div class="spinner"></div>
+      <span class="btn-text">✦ Generate My Strategy</span>
+    </button>
+
+    <div class="error-msg" id="errorMsg"></div>
+  </div>
+
+  <div id="result-section">
+    <div class="result-header">
+      <div class="result-title">Your <span id="resultBizName">Strategy</span> Plan</div>
+      <div class="result-meta" id="resultMeta">— preview only —</div>
+    </div>
+
+    <div class="strategy-card" id="strategyOutput"></div>
+
+    <div class="bottom-cta">
+      <div class="cta-text">
+        <h3>Ready for the full picture?</h3>
+        <p>This is just a taste. The complete strategy includes content calendars, copy, analytics, and ongoing management.</p>
+      </div>
+      <!-- 👇 Replace # with your actual contact page or email link -->
+      <a href="#" class="btn-cta">Let's Work Together →</a>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  document.querySelectorAll('.chip').forEach(chip => {
+    chip.addEventListener('click', () => chip.classList.toggle('active'));
+  });
+
+  function getSelectedPlatforms() {
+    return [...document.querySelectorAll('.chip.active')].map(c => c.dataset.val);
+  }
+
+  function renderMarkdown(text) {
+    return text
+      .replace(/^## (.+)$/gm, '<h2>$1</h2>')
+      .replace(/^### (.+)$/gm, '<h3>$1</h3>')
+      .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+      .replace(/^[-*] (.+)$/gm, '<li>$1</li>')
+      .replace(/(<li>.*<\/li>\n?)+/g, m => `<ul>${m}</ul>`)
+      .replace(/\n\n+/g, '</p><p>')
+      .replace(/^(?!<[hup\/])/gm, '<p>')
+      .replace(/<p><\/p>/g, '')
+      .trim();
+  }
+
+  async function generateStrategy() {
+    const bizName  = document.getElementById('bizName').value.trim();
+    const industry = document.getElementById('industry').value;
+    const audience = document.getElementById('audience').value.trim();
+    const goal     = document.getElementById('goal').value;
+    const platforms = getSelectedPlatforms();
+    const extra    = document.getElementById('extra').value.trim();
+    const errorEl  = document.getElementById('errorMsg');
+
+    errorEl.style.display = 'none';
+
+    if (!bizName || !industry || !audience || !goal || platforms.length === 0) {
+      errorEl.textContent = 'Please fill in all required fields and select at least one platform.';
+      errorEl.style.display = 'block';
+      return;
+    }
+
+    const btn = document.getElementById('generateBtn');
+    btn.disabled = true;
+    btn.classList.add('loading');
+    btn.querySelector('.btn-text').textContent = 'Crafting your strategy…';
+
+    const resultSection = document.getElementById('result-section');
+    const outputEl = document.getElementById('strategyOutput');
+    resultSection.style.display = 'none';
+    resultSection.classList.remove('visible');
+    outputEl.innerHTML = '';
+
+    const prompt = `You are an expert social media strategist. Generate a compelling, personalized social media strategy. Use ## for section headers and - for bullet points.
+
+Business Name: ${bizName}
+Industry: ${industry}
+Target Audience: ${audience}
+Primary Goal: ${goal}
+Platforms: ${platforms.join(', ')}
+${extra ? `Additional Context: ${extra}` : ''}
+
+Create a strategy with these sections:
+## Brand Voice & Tone
+## Content Pillars (3–4 pillars)
+## Platform Strategy
+## Posting Frequency & Best Times
+## Content Ideas (5 specific ideas)
+## Quick Wins to Start This Week
+
+Be specific to their business — not generic advice. Limit to ~450 words.`;
+
+    try {
+      const res = await fetch('/.netlify/functions/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prompt })
+      });
+
+      const data = await res.json();
+
+      if (!res.ok || data.error) {
+        throw new Error(data.error || 'Something went wrong.');
+      }
+
+      document.getElementById('resultBizName').textContent = bizName + "'s";
+      const now = new Date();
+      document.getElementById('resultMeta').textContent =
+        `Generated ${now.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} · Preview`;
+
+      outputEl.innerHTML = renderMarkdown(data.result);
+
+      resultSection.style.display = 'block';
+      setTimeout(() => resultSection.classList.add('visible'), 10);
+      resultSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+    } catch (err) {
+      errorEl.textContent = 'Could not generate strategy. Please try again in a moment.';
+      errorEl.style.display = 'block';
+    } finally {
+      btn.disabled = false;
+      btn.classList.remove('loading');
+      btn.querySelector('.btn-text').textContent = '✦ Generate My Strategy';
+    }
+  }
+</script>
+</body>
+</html>
